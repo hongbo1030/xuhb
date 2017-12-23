@@ -1,12 +1,9 @@
 package com.grandata.www.grandc.home.hadoop.controller;
 
 import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
-
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
-@RequestMapping("/hive")
+@RequestMapping("/hivetest")
 public class HiveTestController {
 
 	private static Logger logger = Logger.getLogger(HiveTestController.class);

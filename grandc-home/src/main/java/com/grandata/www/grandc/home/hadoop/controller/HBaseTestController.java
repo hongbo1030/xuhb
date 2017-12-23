@@ -1,9 +1,7 @@
 package com.grandata.www.grandc.home.hadoop.controller;
 
 import java.util.Map;
-
 import net.sf.json.JSONObject;
-
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
-@RequestMapping("/hbase")
+@RequestMapping("/hbasetest")
 public class HBaseTestController {
 
 	private static Logger logger = Logger.getLogger(HBaseTestController.class);

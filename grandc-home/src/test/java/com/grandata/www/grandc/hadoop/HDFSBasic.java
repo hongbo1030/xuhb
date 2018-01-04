@@ -169,25 +169,27 @@ public class HDFSBasic {
   public static void putfile(String user, String op, String path, String localFile) {
     // step1. curl -i -X PUT "http://<HOST>:<PORT>/webhdfs/v1/<PATH>?op=CREATE[&permission=<OCTAL>]"
     // step2. curl -i -X PUT -T <file> "http://grandata205:50075/webhdfs/v1/user/xuhb/c47.txt?op=CREATE&user.name=hdfs&namenoderpcaddress=zktest&createflag=&createparent=true&overwrite=false"
-    String url = String.format("%s%s?namenoderpcaddress=zktest&createflag=&createparent=true&overwrite=false&user.name=%s&op=%s", "http://192.168.10.205:50075/webhdfs/v1", path, user, op);
+    //String url = String.format("%s%s?namenoderpcaddress=zktest&createflag=&createparent=true&overwrite=false&user.name=%s&op=%s", "http://192.168.10.205:50075/webhdfs/v1", path, user, op);
+    String url = String.format("%s%s?user.name=%s&op=%s", "http://192.168.10.205:50070/webhdfs/v1", path, user, op);
     JSONObject jsonResult = HttpRequestUtils.httpPutFile(url, localFile);
     System.out.println(jsonResult);
   }
 
-  public static void putfile2(String user,String local, String remote) {
+  public static void putfile2(String user, String local, String remote) {
       Configuration conf = new Configuration();
-      conf.addResource("core-site.xml");
-      conf.addResource("hdfs-site.xml");
+      //conf.addResource("core-site.xml");
+      //conf.addResource("hdfs-site.xml");
+      conf.addResource("C:/Users/ThinkPad/Downloads/hdfs-site.xml");
+      conf.addResource("C:/Users/ThinkPad/Downloads/core-site.xml");
       FileSystem fs = null;
       try {
-        fs = FileSystem.get(new URI(conf.get("fs.defaultFS")), conf, user);
+        URI uri = URI.create("hdfs://zktest");
+        fs = FileSystem.get(uri, conf, user);
         fs.copyFromLocalFile(new Path(local), new Path(remote));
         System.out.println("copy from: " + local + " to " + remote);
       } catch (IOException e) {
         e.printStackTrace();
       } catch (InterruptedException e) {
-        e.printStackTrace();
-      } catch (URISyntaxException e) {
         e.printStackTrace();
       } finally {
         try {
@@ -312,9 +314,9 @@ public class HDFSBasic {
     //removeacl("xuhb", "REMOVEACL", "/user/xuhb/a2.txt");
     //removeaclentries("xuhb", "REMOVEACL", "/user/xuhb/a2.txt", "user:foo:rwx");
 
-    //putfile("hdfs", "CREATE", "/user/xuhb/c10.txt", "D:\\中文.txt");
+    //putfile("hdfs", "CREATE", "/user/xuhb/c12.txt", "D:\\中文.txt");
     //putbyte("hdfs", "CREATE", "/user/xuhb/c11.txt", "中文123".getBytes());
-    //putfile2("xuhb", "D:\\中文.txt", "/user/xuhb/c9.txt");
+    putfile2("xuhb", "D:\\中文.txt", "/user/xuhb/c13.txt");
 
     //concat("hdfs", "CONCAT", "/user/xuhb/c12.txt", "/user/xuhb/c8.txt");
     //copy("hdfs", "COPY", "/user/xuhb/c9.txt", "/user/xuhb/c12.txt");

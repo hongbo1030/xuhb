@@ -35,7 +35,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.grandata.www.grandc.common.configuration.PropertiesConfUtil;
 
 @Controller
-@RequestMapping("/hbase")
+@RequestMapping("/hbase2")
 public class HBaseController {
 
   private static Logger logger = Logger.getLogger(HBaseController.class);

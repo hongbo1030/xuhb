@@ -3,8 +3,11 @@ package com.grandata.www.grandc.hadoop;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Iterator;
 import java.util.Properties;
+import java.util.TimeZone;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.oozie.client.AuthOozieClient;
@@ -15,6 +18,8 @@ import org.dom4j.DocumentHelper;
 import com.grandata.www.grandc.common.util.HttpRequestUtils;
 
 public class OozieBasic {
+
+
 
   private static String nameNode = "hdfs://zktest";
   private static String jobTracker = "localhost:8021";
@@ -339,6 +344,12 @@ public class OozieBasic {
     //properties
     FileWriter fw = null;
     try {
+      SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); //小写的mm表示的是分钟
+      SimpleDateFormat df1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'"); //UTC时间
+      df1.setTimeZone(TimeZone.getTimeZone("UTC"));
+      String start_date=df1.format(sdf.parse(obj.getString("starttime")));
+      String end_date=df1.format(sdf.parse(obj.getString("endtime")));
+
       fw = new FileWriter(coorText);
       fw.write("nameNode="+nameNode+System.lineSeparator());
       fw.write("jobTracker="+jobTracker+System.lineSeparator());
@@ -346,7 +357,11 @@ public class OozieBasic {
       fw.write("oozie.use.system.libpath=true"+System.lineSeparator());
       //增加
       fw.write("wf_application_path="+obj.getString("remoteFilePath")+"/workflow.xml"+System.lineSeparator());
+      fw.write("start_date="+start_date+System.lineSeparator());
+      fw.write("end_date="+end_date+System.lineSeparator());
     } catch (IOException e) {
+      e.printStackTrace();
+    } catch (ParseException e) {
       e.printStackTrace();
     } finally {
       try {

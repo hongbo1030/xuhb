@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
-@RequestMapping("/hbasetest")
+@RequestMapping("/hbase")
 public class HBaseTestController {
 
 	private static Logger logger = Logger.getLogger(HBaseTestController.class);

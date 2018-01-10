@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Map;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.datanucleus.util.Base64;
 import org.springframework.stereotype.Controller;
@@ -15,7 +16,7 @@ import com.grandata.www.grandc.common.configuration.PropertiesConfUtil;
 import com.grandata.www.grandc.common.util.HttpRequestUtils;
 
 @Controller
-@RequestMapping("/hdfs")
+@RequestMapping("/hdfs2")
 public class HDFSController {
 
   private static Logger logger = Logger.getLogger(HDFSController.class);
@@ -508,6 +509,41 @@ public class HDFSController {
         fileJSON.put("type", fileStatu.getString("type").substring(0, 1));
         fileArray.add(fileJSON);
       }
+
+      json.put("id", -1);
+      json.put("state", "COMPLETE");
+      json.put("errorCode", 0);
+      json.put("logDescription", jsonResult);
+    } catch (Exception e) {
+      json.put("id", -1);
+      json.put("state", "COMPLETE");
+      json.put("errorCode", -1);
+      json.put("logDescription", "Exception.");
+    }
+
+    return json;
+  }
+
+  @RequestMapping(value = "/setpermission", method = {RequestMethod.POST},
+      consumes = "application/json;charset=UTF-8", produces = "application/json;charset=UTF-8")
+  @ResponseBody
+  public JSONObject setpermission(@RequestBody Map<String, String> paramMap) throws Exception {
+    logger.debug(JSONObject.fromObject(paramMap));
+
+    // 返回值
+    JSONObject json = new JSONObject();
+    // 解析参数
+    String user = paramMap.get("tenantName");
+    String path = paramMap.get("fullname");
+    String permission = paramMap.get("permission");
+    String op = "SETPERMISSION";
+
+    try {
+      String url = String.format("%s%s/?user.name=%s&op=%s", httpfsurl, path, user, op);
+      if (StringUtils.isNotBlank(permission)) {
+        url = url + "&permission=" + permission;
+      }
+      JSONObject jsonResult = HttpRequestUtils.httpPut(url);
 
       json.put("id", -1);
       json.put("state", "COMPLETE");

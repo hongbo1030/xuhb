@@ -3,10 +3,7 @@ package com.grandata.www.grandc.java;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.TimeZone;
 
 public class JavaBasic {
   public static void main(String[] args) throws IOException, ParseException {
@@ -20,7 +17,7 @@ public class JavaBasic {
 /*    System.out.println(Compression.Algorithm.NONE.getName());
     System.out.println(Compression.Algorithm.valueOf("SNAPPY"));*/
 
-    SimpleDateFormat foo = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+    /*SimpleDateFormat foo = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
     System.out.println("foo:" + foo.format(new Date()));
 
     Calendar gc = GregorianCalendar.getInstance();
@@ -73,8 +70,21 @@ public class JavaBasic {
     System.out.println(df1.format(t));
     System.out.println("-----------");
     System.out.println(df1.format(df1.parse("2014-08-27T18:02Z")) + "***********");
-    System.out.println("2014-08-27T18:02:59.676Z");
+    System.out.println("2014-08-27T18:02:59.676Z");*/
 
+    SimpleDateFormat df1 = new SimpleDateFormat("yyyy-MM-dd");
+    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
+    Date date_date = null;
+    try {
+      date_date = df1.parse("2015-01-01");
+    } catch (ParseException e1) {
+      e1.printStackTrace();
+    }
+
+    for(int i=0;i<96;i++) {
+      String starttime = df.format(date_date.getTime() + (i * 24 * 60 * 60 * 1000L) / 96);
+      System.out.println( starttime);
+    }
   }
 }

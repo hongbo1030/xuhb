@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
-@RequestMapping("/workflowtest")
+@RequestMapping("/workflow")
 public class WorkflowTestController {
 
 	private static Logger logger = Logger.getLogger(WorkflowTestController.class);

@@ -1,10 +1,8 @@
 package com.grandata.www.grandc.home.workflow.controller;
 
 import java.util.Map;
-
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
-@RequestMapping("/workflow")
+@RequestMapping("/workflow2")
 public class WorkflowController {
 
 	private static Logger logger = Logger.getLogger(WorkflowController.class);

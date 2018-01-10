@@ -11,11 +11,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 行业电量+温度模型
+ * 行业电量+温度+湿度模型/大用户电量+温度+湿度模型
  * @author grandata
  *
  */
-public class TradeElecWeatherModel {
+public class ElecWeatherHumidityModel {
 
   static void repairArray(Double in[]) {
     Double i_first = null;
@@ -246,12 +246,14 @@ public class TradeElecWeatherModel {
 
   public static void main(String[] args) throws Exception {
     // 初始化
-    int array = 45;//温度
+    int outArray = 7;//湿度
+    int inArray = 45;//温度
+    int limitArray = 10;//数组计算限额
 
     String tradecode = "";
     String orgno = "";
-    String energy_type = "";
-    String factor_type = "";
+    int energy_type = 0; //consno
+    int factor_type = 0; //constype
     Double hard_max = 2D; // 9D
     Double hard_min = -0.9D;
     Double basevalue = 1D; //后面会修改
@@ -268,11 +270,11 @@ public class TradeElecWeatherModel {
     //写文件
     fw = new FileWriter(createfile);
 
-    // 存放二维对象类型的list二维数组。此处需要加上  时间、行业、地区、energy_type、factor_type、基准值、上限、下限、温度、电量
+    // 存放二维对象类型的list二维数组。此处需要加上  时间、行业、地区、energy_type(consno)、factor_type(constype)、基准值、上限、下限、湿度、温度、电量
     // {"行业@地区@energy_type@factor_type@上限@下限": {list}}}
-    Map<String, List<Double>[]> map_data = new HashMap<String, List<Double>[]>();
-    //温度(45)
-    List<Double>[] listArr = new ArrayList[array];
+    Map<String, List<Double>[][]> map_data = new HashMap<String, List<Double>[][]>();
+    //湿度(7)*温度(45)
+    List<Double>[][] listArr = new ArrayList[outArray][inArray];
 
     File dir = new File(path);
     File[] files = dir.listFiles();
@@ -287,28 +289,30 @@ public class TradeElecWeatherModel {
           listArr = map_data.get(key);
           // 取值根据基准值计算
           try {
-            listArr[Integer.parseInt(data[8])].add(new BigDecimal(
-                (Double.parseDouble(data[9]) - basevalue) / basevalue).setScale(4,
+            listArr[Integer.parseInt(data[8])][Integer.parseInt(data[9])].add(new BigDecimal(
+                (Double.parseDouble(data[10]) - basevalue) / basevalue).setScale(4,
                 BigDecimal.ROUND_HALF_UP).doubleValue());
           } catch (Exception e) {
-            listArr[Integer.parseInt(data[8])].add(new BigDecimal((0 - basevalue) / basevalue)
-                .setScale(4, BigDecimal.ROUND_HALF_UP).doubleValue());
+            listArr[Integer.parseInt(data[8])][Integer.parseInt(data[9])].add(new BigDecimal(
+                (0 - basevalue) / basevalue).setScale(4, BigDecimal.ROUND_HALF_UP).doubleValue());
           }
 
           map_data.put(key, listArr);
         } else {
-          // 初始化。温度
-          for (int x = 0; x < array; x++) {
-            listArr[x] = new ArrayList<>();
+          // 初始化。湿度、温度
+          for (int x = 0; x < outArray; x++) {
+            for (int y = 0; y < inArray; y++) {
+              listArr[x][y] = new ArrayList<>();
+            }
           }
 
           try {
-            listArr[Integer.parseInt(data[8])].add(new BigDecimal(
-                (Double.parseDouble(data[9]) - basevalue) / basevalue).setScale(4,
+            listArr[Integer.parseInt(data[8])][Integer.parseInt(data[9])].add(new BigDecimal(
+                (Double.parseDouble(data[10]) - basevalue) / basevalue).setScale(4,
                 BigDecimal.ROUND_HALF_UP).doubleValue());
           } catch (Exception e) {
-            listArr[Integer.parseInt(data[8])].add(new BigDecimal((0 - basevalue) / basevalue)
-                .setScale(4, BigDecimal.ROUND_HALF_UP).doubleValue());
+            listArr[Integer.parseInt(data[8])][Integer.parseInt(data[9])].add(new BigDecimal(
+                (0 - basevalue) / basevalue).setScale(4, BigDecimal.ROUND_HALF_UP).doubleValue());
           }
           map_data.put(key, listArr);
         }
@@ -317,41 +321,122 @@ public class TradeElecWeatherModel {
     }
 
     // 遍历 map_data
-    for (Map.Entry<String, List<Double>[]> entry : map_data.entrySet()) {
+    for (Map.Entry<String, List<Double>[][]> entry : map_data.entrySet()) {
       // System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue());
       String key = entry.getKey();
       String[] keyArray = key.split("@", 6);
-      List<Double>[] valueArr = entry.getValue();
+      List<Double>[][] valueArr = entry.getValue();
 
       // 行业
       tradecode = keyArray[0];
       orgno = keyArray[1];
-      energy_type = keyArray[2];
-      factor_type = keyArray[3];
+      energy_type = Integer.parseInt(keyArray[2]);
+      factor_type = Integer.parseInt(keyArray[3]);
       hard_max = Double.parseDouble(keyArray[4]);
       hard_min = Double.parseDouble(keyArray[5]);
 
       // 每次循环的结果
-      Double[] result = new Double[array];
+      Double[][] result = new Double[outArray][inArray];
       // 此时加上不知道为何的判断逻辑
       // 每个点rate再计算. 每个点根据 (湿度+-1)*(温度+-1) 的9个点对应的值计算。一个点可能存在多个值
       List<Double> tmp = new ArrayList<Double>();
-      for (int x = 0; x < array; x++) {
+      for (int x = 0; x < outArray; x++) {
+        for (int y = 0; y < inArray; y++) {
+
           // 二维数组转一维数组
           tmp = new ArrayList<Double>();
           // 需要判断是否存在
           if (x == 0) {
             // 缺少x-1
-            tmp.addAll(valueArr[x]);
-            tmp.addAll(valueArr[x + 1]);
-          } else if (x == array-1) {
+            if (y == 0) { // 4
+              tmp.addAll(valueArr[x][y]);
+              tmp.addAll(valueArr[x + 1][y]);
+              tmp.addAll(valueArr[x][y + 1]);
+              tmp.addAll(valueArr[x + 1][y + 1]);
+            } else if (y == inArray-1) { // 4
+              tmp.addAll(valueArr[x][y - 1]);
+              tmp.addAll(valueArr[x + 1][y - 1]);
+              tmp.addAll(valueArr[x][y]);
+              tmp.addAll(valueArr[x + 1][y]);
+            } else { // 6
+              tmp.addAll(valueArr[x][y - 1]);
+              tmp.addAll(valueArr[x + 1][y - 1]);
+              tmp.addAll(valueArr[x][y]);
+              tmp.addAll(valueArr[x + 1][y]);
+              tmp.addAll(valueArr[x][y + 1]);
+              tmp.addAll(valueArr[x + 1][y + 1]);
+            }
+          } else if (x == outArray-1) {
             // 缺少x+1
-            tmp.addAll(valueArr[x - 1]);
-            tmp.addAll(valueArr[x]);
-          } else { //3
-            tmp.addAll(valueArr[x - 1]);
-            tmp.addAll(valueArr[x]);
-            tmp.addAll(valueArr[x + 1]);
+            if (y == 0) { // 4
+              tmp.addAll(valueArr[x - 1][y]);
+              tmp.addAll(valueArr[x][y]);
+              tmp.addAll(valueArr[x - 1][y + 1]);
+              tmp.addAll(valueArr[x][y + 1]);
+            } else if (y == inArray-1) { // 4
+              tmp.addAll(valueArr[x - 1][y - 1]);
+              tmp.addAll(valueArr[x][y - 1]);
+              tmp.addAll(valueArr[x - 1][y]);
+              tmp.addAll(valueArr[x][y]);
+            } else { // 6
+              tmp.addAll(valueArr[x - 1][y - 1]);
+              tmp.addAll(valueArr[x][y - 1]);
+              tmp.addAll(valueArr[x - 1][y]);
+              tmp.addAll(valueArr[x][y]);
+              tmp.addAll(valueArr[x - 1][y + 1]);
+              tmp.addAll(valueArr[x][y + 1]);
+            }
+          } else { //9
+            if (y == 0) { // 6
+              tmp.addAll(valueArr[x - 1][y]);
+              tmp.addAll(valueArr[x][y]);
+              tmp.addAll(valueArr[x + 1][y]);
+              tmp.addAll(valueArr[x - 1][y + 1]);
+              tmp.addAll(valueArr[x][y + 1]);
+              tmp.addAll(valueArr[x + 1][y + 1]);
+            } else if (y == inArray-1) { // 6
+              tmp.addAll(valueArr[x - 1][y - 1]);
+              tmp.addAll(valueArr[x][y - 1]);
+              tmp.addAll(valueArr[x + 1][y - 1]);
+              tmp.addAll(valueArr[x - 1][y]);
+              tmp.addAll(valueArr[x][y]);
+              tmp.addAll(valueArr[x + 1][y]);
+            } else {
+              tmp.addAll(valueArr[x - 1][y - 1]);
+              tmp.addAll(valueArr[x][y - 1]);
+              tmp.addAll(valueArr[x + 1][y - 1]);
+              tmp.addAll(valueArr[x - 1][y]);
+              tmp.addAll(valueArr[x][y]);
+              tmp.addAll(valueArr[x + 1][y]);
+              tmp.addAll(valueArr[x - 1][y + 1]);
+              tmp.addAll(valueArr[x][y + 1]);
+              tmp.addAll(valueArr[x + 1][y + 1]);
+            }
+          }
+
+          //如果不足10，那么重新取整个湿度，温度不变
+          if (tmp.size()<limitArray) {
+            tmp = new ArrayList<Double>();
+            for(int i=0;i<outArray;i++) {
+              tmp.addAll(valueArr[i][y]);
+            }
+          }
+          //如果此时依然不足10，那么取整个湿度，温度上下变动1
+          if (tmp.size()<limitArray) {
+            tmp = new ArrayList<Double>();
+            for(int i=0;i<outArray;i++) {
+              if(y == 0) {
+                tmp.addAll(valueArr[i][y]);
+                tmp.addAll(valueArr[i][y+1]);
+              } else if(y==inArray-1) {
+                tmp.addAll(valueArr[i][y-1]);
+                tmp.addAll(valueArr[i][y]);
+              } else {
+                tmp.addAll(valueArr[i][y-1]);
+                tmp.addAll(valueArr[i][y]);
+                tmp.addAll(valueArr[i][y+1]);
+              }
+            }
           }
 
           // ...
@@ -424,20 +509,22 @@ public class TradeElecWeatherModel {
               d_avg = null; // 此种情况不计算
             }
 
-            result[x] = d_avg;
+            result[x][y] = d_avg;
           }
+        }
       } // for (int x = 0; x < outArray; x++) {
 
       // 遍历result
 
       // 阶段1结束。阶段2 七点曲面平滑拟合 (作用: 三维散点坐标拟合到平滑曲面)
       // 修复数组
-      repairArray(result);
-
+      for (int x = 0; x < outArray; x++) {
+        repairArray(result[x]);
+      }
       // 七点曲面平滑拟合
 
-      //温度、电量
-      Double[] r = linearSmooth7(result, hard_max, hard_min);
+      //湿度、温度、电量
+      Double[][] r = linearSmooth7(result, hard_max, hard_min);
 
       //输出结果. 行业、地区、时刻、温度、值
       //System.out.println(String.format("%s %s %s %s %s", trade, org, 0, 0, r[0][0]));
@@ -449,7 +536,9 @@ public class TradeElecWeatherModel {
 
       //energy_type,factor_type,行业,地区,factor_id,value
       for(int x=0;x<r.length;x++) {
-        fw.write(String.format("%s,%s,%s,%s,%s,%s"+System.lineSeparator(), energy_type, factor_type, tradecode, orgno, x+1, r[x]));
+        for(int y=0;y<r[x].length;y++) {
+          fw.write(String.format("%s,%s,%s,%s,%s,%s"+System.lineSeparator(), energy_type, factor_type, tradecode, orgno, x*45+y+1, r[x][y]));
+        }
       }
     }
 

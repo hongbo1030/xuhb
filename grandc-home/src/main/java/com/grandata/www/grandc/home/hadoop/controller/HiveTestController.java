@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
-@RequestMapping("/hivetest")
+@RequestMapping("/hive")
 public class HiveTestController {
 
 	private static Logger logger = Logger.getLogger(HiveTestController.class);
@@ -227,5 +227,19 @@ public class HiveTestController {
 
 		return json;
 	}
+
+	@RequestMapping(value = "/setacl", method = {RequestMethod.POST}, consumes = "application/json;charset=UTF-8", produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public JSONObject setacl(@RequestBody Map<String, String> paramMap) throws Exception {
+        logger.debug(JSONObject.fromObject(paramMap));
+
+        JSONObject json = new JSONObject();
+        json.put("id", -1);
+        json.put("state", "COMPLETE");
+        json.put("errorCode", 0);
+        json.put("logDescription", "Operation succeeded.");
+
+        return json;
+    }
 
 }

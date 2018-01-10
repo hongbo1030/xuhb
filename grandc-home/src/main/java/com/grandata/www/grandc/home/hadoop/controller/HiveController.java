@@ -25,13 +25,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.grandata.www.grandc.common.configuration.PropertiesConfUtil;
 
 @Controller
-@RequestMapping("/hive")
+@RequestMapping("/hive2")
 public class HiveController {
 
   private static Logger logger = Logger.getLogger(HiveController.class);
 
-  private static String driverName = PropertiesConfUtil.getInstance()
-      .getProperty("hive.driverName");
+  private static String driverName = PropertiesConfUtil.getInstance().getProperty("hive.driverName");
   private static String url = PropertiesConfUtil.getInstance().getProperty("hive.url");
   private static String username = PropertiesConfUtil.getInstance().getProperty("hive.user");
   private static String password = PropertiesConfUtil.getInstance().getProperty("hive.password");

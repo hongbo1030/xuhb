@@ -11,11 +11,14 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 行业负荷+温度模型
+ * 行业负荷+温度模型/大用户负荷+温度模型
  * @author grandata
  *
  */
-public class TradePowerWeatherModel {
+public class PowerWeatherModel {
+
+  private static String TRADE="TRADE";
+  private static String CONS="CONS";
 
   static void repairArray(Double in[]) {
     Double i_first = null;
@@ -251,13 +254,14 @@ public class TradePowerWeatherModel {
 
     String tradecode = "";
     String orgno = "";
-    int energy_type = 0;
-    int factor_type = 0;
+    int energy_type = 0; //consno
+    int factor_type = 0; //constype
     Double hard_max = 2D; // 9D
     Double hard_min = -0.4D;
     Double basevalue = 1D; //后面会修改
 
     String path = args[0]; //文件夹
+    String filetype = args[1]; //用于区分行业(trade)、大用户(cons)。输出格式不同，其他完全一致
 
     FileWriter fw = null;
     String createfile = "";
@@ -269,7 +273,7 @@ public class TradePowerWeatherModel {
     //写文件
     fw = new FileWriter(createfile);
 
-    // 存放二维对象类型的list二维数组。此处需要加上 时间、行业、地区、energy_type、factor_type、基准值、上限、下限、温度、{p1,p2,p3...p96}
+    // 存放二维对象类型的list二维数组。此处需要加上 时间、行业、地区、energy_type(consno)、factor_type(constype)、基准值、上限、下限、温度、{p1,p2,p3...p96}
     // {"行业@地区@energy_type@factor_type@上限@下限": {list}}}
     Map<String, List<Double>[][]> map_data = new HashMap<String, List<Double>[][]>();
 
@@ -514,9 +518,19 @@ public class TradePowerWeatherModel {
       }*/
 
       //energy_type,factor_type,行业,地区,factor_id,value
-      for(int x=0;x<r.length;x++) {
-        for(int y=0;y<r[x].length;y++) {
-          fw.write(String.format("%s,%s,%s,%s,%s,%s"+System.lineSeparator(), energy_type, factor_type, tradecode, orgno, x*45+y+1, r[x][y]));
+      if(filetype.equals(TRADE)) {
+        for(int x=0;x<r.length;x++) {
+          for(int y=0;y<r[x].length;y++) {
+            fw.write(String.format("%s,%s,%s,%s,%s,%s"+System.lineSeparator(), energy_type, factor_type, tradecode, orgno, x*45+y+1, r[x][y]));
+          }
+        }
+      } else if(filetype.equals(CONS)) {
+        for(int y=0;y<inArray;y++) { //内循环
+          fw.write(String.format("%s,%s,%s,%s,%s", energy_type, factor_type, tradecode, orgno, y+1));
+          for(int x=0;x<outArray;x++) { //96个
+            fw.write(","+r[x][y]);
+          }
+          fw.write(System.lineSeparator());
         }
       }
     }

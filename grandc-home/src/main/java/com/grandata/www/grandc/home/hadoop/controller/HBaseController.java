@@ -43,14 +43,18 @@ public class HBaseController {
   static Configuration conf = null;
   static {
     conf = HBaseConfiguration.create();
-    conf.set("hbase.zookeeper.property.clientPort",
-        PropertiesConfUtil.getInstance().getProperty("hbase.zookeeper.property.clientPort"));
-    conf.set("hbase.zookeeper.quorum",
-        PropertiesConfUtil.getInstance().getProperty("hbase.zookeeper.quorum"));
-    conf.set("zookeeper.znode.parent",
-        PropertiesConfUtil.getInstance().getProperty("zookeeper.znode.parent"));
-    System.setProperty("HADOOP_USER_NAME",
-        PropertiesConfUtil.getInstance().getProperty("hbase.superuser"));
+    try {
+      conf.set("hbase.zookeeper.property.clientPort",
+          PropertiesConfUtil.getInstance().getProperty("hbase.zookeeper.property.clientPort"));
+      conf.set("hbase.zookeeper.quorum",
+          PropertiesConfUtil.getInstance().getProperty("hbase.zookeeper.quorum"));
+      conf.set("zookeeper.znode.parent",
+          PropertiesConfUtil.getInstance().getProperty("zookeeper.znode.parent"));
+      System.setProperty("HADOOP_USER_NAME",
+          PropertiesConfUtil.getInstance().getProperty("hbase.superuser"));
+    } catch (Exception e) {
+      logger.error("HBaseController Exception error", e);
+    }
   }
 
   @RequestMapping(value = "/createdb", method = {RequestMethod.POST},

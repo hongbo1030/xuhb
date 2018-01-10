@@ -30,16 +30,22 @@ public class HiveController {
 
   private static Logger logger = Logger.getLogger(HiveController.class);
 
-  private static String driverName = PropertiesConfUtil.getInstance().getProperty("hive.driverName");
-  private static String url = PropertiesConfUtil.getInstance().getProperty("hive.url");
-  private static String username = PropertiesConfUtil.getInstance().getProperty("hive.user");
-  private static String password = PropertiesConfUtil.getInstance().getProperty("hive.password");
+  private static String driverName = null;
+  private static String url = null;
+  private static String username = null;
+  private static String password = null;
 
   static {
     try {
+      driverName = PropertiesConfUtil.getInstance().getProperty("hive.driverName");
+      url = PropertiesConfUtil.getInstance().getProperty("hive.url");
+      username = PropertiesConfUtil.getInstance().getProperty("hive.user");
+      password = PropertiesConfUtil.getInstance().getProperty("hive.password");
       Class.forName(driverName);
     } catch (ClassNotFoundException e) {
       logger.error("HiveController driverName error", e);
+    } catch (Exception e) {
+      logger.error("HiveController Exception error", e);
     }
   }
 

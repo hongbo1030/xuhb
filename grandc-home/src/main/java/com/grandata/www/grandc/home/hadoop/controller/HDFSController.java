@@ -21,9 +21,17 @@ public class HDFSController {
 
   private static Logger logger = Logger.getLogger(HDFSController.class);
 
-  private static String httpfsurl = PropertiesConfUtil.getInstance().getProperty("hdfs.httpfsurl");
-  private static String httpfsurl_datanode = PropertiesConfUtil.getInstance().getProperty(
-      "hdfs.httpfsurl_datanode");
+  private static String httpfsurl = null;
+  private static String httpfsurl_datanode = null;
+
+  static {
+    try{
+      httpfsurl = PropertiesConfUtil.getInstance().getProperty("hdfs.httpfsurl");
+      httpfsurl_datanode = PropertiesConfUtil.getInstance().getProperty("hdfs.httpfsurl_datanode");
+    }catch(Exception e){
+      logger.error("HDFSController Exception error", e);
+    }
+  }
 
   @RequestMapping(value = "/put", method = {RequestMethod.POST},
       consumes = "application/json;charset=UTF-8", produces = "application/json;charset=UTF-8")

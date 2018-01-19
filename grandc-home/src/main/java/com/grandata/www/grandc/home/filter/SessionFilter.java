@@ -35,8 +35,6 @@ public class SessionFilter extends OncePerRequestFilter {
 
   private static Logger logger = Logger.getLogger(SessionFilter.class);
 
-
-
   /*
    * (non-Javadoc)
    *
@@ -46,100 +44,62 @@ public class SessionFilter extends OncePerRequestFilter {
    * javax.servlet.http.HttpServletResponse, javax.servlet.FilterChain)
    */
   @Override
-  protected void doFilterInternal(HttpServletRequest request,
-          HttpServletResponse response, FilterChain filterChain)
-          throws ServletException, IOException {
+  protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+      FilterChain filterChain) throws ServletException, IOException {
 
-      // 不过滤的uri
-      String[] notFilter = new String[] { "index.html", "login.html" };
+    // 不过滤的uri
+    String[] notFilter = new String[] {"index.html", "login.html"};
 
-      // 请求的uri
-      String uri = request.getRequestURI();
+    // 请求的uri
+    String uri = request.getRequestURI();
 
 
-          // 是否过滤
-          boolean doFilter = true;
-          for (String s : notFilter) {
-              if (uri.indexOf(s) != -1) {
-                  // 如果uri中包含不过滤的uri，则不进行过滤
-                  doFilter = false;
-                  break;
-              }
-          }
+    // 是否过滤
+    boolean doFilter = true;
+    for (String s : notFilter) {
+      if (uri.indexOf(s) != -1) {
+        // 如果uri中包含不过滤的uri，则不进行过滤
+        doFilter = false;
+        break;
+      }
+    }
 
-          //获取 @RequestBody 进行校验
-          if (doFilter) {
-            //取值并且重新写回去
-            HttpServletRequest httpServletRequest = request;
-            HttpServletResponse httpServletResponse = response;
+    // 获取 @RequestBody 进行校验
+    if (doFilter) {
+      // 取值并且重新写回去
+      HttpServletRequest httpServletRequest = request;
+      HttpServletResponse httpServletResponse = response;
 
-            Map<String, String> requestMap = this
-                    .getTypesafeRequestMap(httpServletRequest);
-            BufferedRequestWrapper bufferedRequest = new BufferedRequestWrapper(
-                    httpServletRequest);
-            BufferedResponseWrapper bufferedResponse = new BufferedResponseWrapper(
-                    httpServletResponse);
+      Map<String, String> requestMap = this.getTypesafeRequestMap(httpServletRequest);
+      BufferedRequestWrapper bufferedRequest = new BufferedRequestWrapper(httpServletRequest);
+      BufferedResponseWrapper bufferedResponse = new BufferedResponseWrapper(httpServletResponse);
 
-/*            final StringBuilder logMessage = new StringBuilder(
-                "REST Request - ").append("[HTTP METHOD:")
-                .append(httpServletRequest.getMethod())
-                .append("] [PATH INFO:")
-                .append(httpServletRequest.getPathInfo())
-                .append("] [REQUEST PARAMETERS:").append(requestMap)
-                .append("] [REQUEST BODY:")
-                .append(bufferedRequest.getRequestBody())
-                .append("] [REMOTE ADDRESS:")
-                .append(httpServletRequest.getRemoteAddr()).append("]");*/
+      String strBody = bufferedRequest.getRequestBody();
+      if (StringUtils.isNotBlank(strBody)) {
+        String tenantName = JSONObject.fromObject(strBody).getString("tenantName");
+        String key = JSONObject.fromObject(strBody).getString("key");
+        IUserService userservice = (IUserService) SpringContextUtil.getBean("userservice");
+        int i = userservice.checkUsernamePassword(tenantName, key);
+        if (i > 0) {
+          filterChain.doFilter(bufferedRequest, bufferedResponse);
+        } else {
+          // 校验不通过
+          JSONObject json = new JSONObject();
+          json.put("id", -1);
+          json.put("state", "COMPLETE");
+          json.put("errorCode", -1);
+          json.put("logDescription", "tenantName or key error!");
 
-            String strBody = bufferedRequest.getRequestBody();
-            if(StringUtils.isNotBlank(strBody)) {
-              String tenantName = JSONObject.fromObject(strBody).getString("tenantName");
-              String key = JSONObject.fromObject(strBody).getString("key");
-              IUserService userservice = (IUserService) SpringContextUtil.getBean("userservice");
-              int i = userservice.checkUsernamePassword(tenantName, key);
-              if(i > 0) {
-                filterChain.doFilter(bufferedRequest, bufferedResponse);
-              } else {
-                //校验不通过
-                JSONObject json = new JSONObject();
-                json.put("id", -1);
-                json.put("state", "COMPLETE");
-                json.put("errorCode", -1);
-                json.put("logDescription", "tenantName或key错误");
-              }
-            } else {
-              filterChain.doFilter(bufferedRequest, bufferedResponse);
-            }
+          PrintWriter out = response.getWriter();
+          out.print(json);
+        }
+      } else {
+        filterChain.doFilter(bufferedRequest, bufferedResponse);
+      }
 
-          }
-/*
-          if (doFilter) {
-              // 执行过滤
-              // 从session中获取登录者实体
-              Object obj = request.getSession().getAttribute("loginedUser");
-              if (null == obj) {
-                  // 如果session中不存在登录者实体，则弹出框提示重新登录
-                  // 设置request和response的字符集，防止乱码
-                  request.setCharacterEncoding("UTF-8");
-                  response.setCharacterEncoding("UTF-8");
-                  PrintWriter out = response.getWriter();
-                  String loginPage = "....";
-                  StringBuilder builder = new StringBuilder();
-                  builder.append("<script type=\"text/javascript\">");
-                  builder.append("alert('网页过期，请重新登录！');");
-                  builder.append("window.top.location.href='");
-                  builder.append(loginPage);
-                  builder.append("';");
-                  builder.append("</script>");
-                  out.print(builder.toString());
-              } else {
-                  // 如果session中存在登录者实体，则继续
-                  filterChain.doFilter(request, response);
-              }
-          } else {
-              // 如果不执行过滤，则继续
-              filterChain.doFilter(request, response);
-          }*/
+    } else {
+      filterChain.doFilter(request, response);
+    }
 
   }
 

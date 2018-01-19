@@ -26,7 +26,7 @@ public class HDFSTestController {
     JSONObject json = new JSONObject();
     json.put("id", -1);
     json.put("state", "COMPLETE");
-    json.put("errorCode", -1);
+    json.put("errorCode", 0);
     json.put("logDescription", "Operation succeeded.");
     return json;
   }
@@ -41,7 +41,22 @@ public class HDFSTestController {
     JSONObject json = new JSONObject();
     json.put("id", -1);
     json.put("state", "COMPLETE");
-    json.put("errorCode", -1);
+    json.put("errorCode", 0);
+    json.put("logDescription", "Operation succeeded.");
+    return json;
+  }
+
+  @RequestMapping(value = "/copy", method = {RequestMethod.POST},
+      consumes = "application/json;charset=UTF-8", produces = "application/json;charset=UTF-8")
+  @ResponseBody
+  public JSONObject copy(@RequestBody Map<String, String> paramMap) throws Exception {
+    logger.debug(JSONObject.fromObject(paramMap));
+
+    // 返回值
+    JSONObject json = new JSONObject();
+    json.put("id", -1);
+    json.put("state", "COMPLETE");
+    json.put("errorCode", 0);
     json.put("logDescription", "Operation succeeded.");
     return json;
   }
@@ -56,7 +71,7 @@ public class HDFSTestController {
     JSONObject json = new JSONObject();
     json.put("id", -1);
     json.put("state", "COMPLETE");
-    json.put("errorCode", -1);
+    json.put("errorCode", 0);
     json.put("logDescription", "Operation succeeded.");
     return json;
   }
@@ -71,7 +86,7 @@ public class HDFSTestController {
     JSONObject json = new JSONObject();
     json.put("id", -1);
     json.put("state", "COMPLETE");
-    json.put("errorCode", -1);
+    json.put("errorCode", 0);
     json.put("logDescription", "Operation succeeded.");
     return json;
   }
@@ -86,7 +101,7 @@ public class HDFSTestController {
     JSONObject json = new JSONObject();
     json.put("id", -1);
     json.put("state", "COMPLETE");
-    json.put("errorCode", -1);
+    json.put("errorCode", 0);
     json.put("logDescription", "Operation succeeded.");
     return json;
   }
@@ -101,7 +116,7 @@ public class HDFSTestController {
     JSONObject json = new JSONObject();
     json.put("id", -1);
     json.put("state", "COMPLETE");
-    json.put("errorCode", -1);
+    json.put("errorCode", 0);
     json.put("logDescription", "Operation succeeded.");
     return json;
   }
@@ -116,7 +131,7 @@ public class HDFSTestController {
     JSONObject json = new JSONObject();
     json.put("id", -1);
     json.put("state", "COMPLETE");
-    json.put("errorCode", -1);
+    json.put("errorCode", 0);
     json.put("logDescription", "Operation succeeded.");
     return json;
   }
@@ -131,7 +146,7 @@ public class HDFSTestController {
     JSONObject json = new JSONObject();
     json.put("id", -1);
     json.put("state", "COMPLETE");
-    json.put("errorCode", -1);
+    json.put("errorCode", 0);
     json.put("logDescription", "Operation succeeded.");
     return json;
   }
@@ -146,7 +161,7 @@ public class HDFSTestController {
     JSONObject json = new JSONObject();
     json.put("id", -1);
     json.put("state", "COMPLETE");
-    json.put("errorCode", -1);
+    json.put("errorCode", 0);
     json.put("logDescription", "Operation succeeded.");
     return json;
   }
@@ -197,7 +212,7 @@ public class HDFSTestController {
     JSONObject json = new JSONObject();
     json.put("id", -1);
     json.put("state", "COMPLETE");
-    json.put("errorCode", -1);
+    json.put("errorCode", 0);
     json.put("logDescription", "Operation succeeded.");
     json.put("data", data);
     return json;
@@ -213,7 +228,7 @@ public class HDFSTestController {
     JSONObject json = new JSONObject();
     json.put("id", -1);
     json.put("state", "COMPLETE");
-    json.put("errorCode", -1);
+    json.put("errorCode", 0);
     json.put("logDescription", "Operation succeeded.");
     return json;
   }

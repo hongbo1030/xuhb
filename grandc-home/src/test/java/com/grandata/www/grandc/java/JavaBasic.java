@@ -2,8 +2,8 @@ package com.grandata.www.grandc.java;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 public class JavaBasic {
   public static void main(String[] args) throws IOException, ParseException {
@@ -72,7 +72,7 @@ public class JavaBasic {
     System.out.println(df1.format(df1.parse("2014-08-27T18:02Z")) + "***********");
     System.out.println("2014-08-27T18:02:59.676Z");*/
 
-    SimpleDateFormat df1 = new SimpleDateFormat("yyyy-MM-dd");
+/*    SimpleDateFormat df1 = new SimpleDateFormat("yyyy-MM-dd");
     SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     Date date_date = null;
@@ -85,6 +85,55 @@ public class JavaBasic {
     for(int i=0;i<96;i++) {
       String starttime = df.format(date_date.getTime() + (i * 24 * 60 * 60 * 1000L) / 96);
       System.out.println( starttime);
-    }
+    }*/
+
+    JSONObject json = new JSONObject();
+    json.put("id", -1);
+    json.put("state", "COMPLETE");
+    json.put("errorCode", 0);
+    json.put("logDescription", "Operation succeeded.");
+
+    //colList
+    JSONArray arrayList1 = new JSONArray();
+    JSONObject json11 = new JSONObject();
+    json11.put("colName", "id");
+    json11.put("colType", "INT");
+    arrayList1.add(json11);
+
+    JSONObject json12 = new JSONObject();
+    json12.put("colName", "name");
+    json12.put("colType", "String");
+    arrayList1.add(json12);
+
+    JSONObject json13 = new JSONObject();
+    json13.put("colName", "date");
+    json13.put("colType", "String");
+    arrayList1.add(json13);
+
+    //valList
+    JSONArray arrayList2 = new JSONArray();
+    JSONObject json22 = new JSONObject();
+    json22.put("id", "1001");
+    json22.put("name", "Tom");
+    json22.put("data", "2015-04-25");
+    arrayList2.add(json22);
+    json22 = new JSONObject();
+    json22.put("id", "1002");
+    json22.put("name", "mary");
+    json22.put("data", "2015-04-25");
+    arrayList2.add(json22);
+    json22 = new JSONObject();
+    json22.put("id", "1003");
+    json22.put("name", "jack");
+    json22.put("data", "2015-04-25");
+    arrayList2.add(json22);
+
+    JSONObject json1 = new JSONObject();
+    json1.put("colList", arrayList1);
+    json1.put("valList", arrayList2);
+
+    json.put("data", json1);
+
+    System.out.println("json="+json);
   }
 }
